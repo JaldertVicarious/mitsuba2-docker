@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
+FROM nvidia/cuda:11.3.1-cudnn8-devel-ubuntu18.04
 
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 
@@ -53,6 +53,10 @@ RUN cd root && git clone https://github.com/mitsuba-renderer/mitsuba2.git && \
     git submodule update --init --recursive
 RUN cp /root/mitsuba2/resources/mitsuba.conf.template /root/mitsuba2/mitsuba.conf && \
     sed -i 's/"default": "scalar_spectral",.*/"default": "gpu_autodiff_rgb",/' /root/mitsuba2/mitsuba.conf
+
+# https://github.com/mitsuba-renderer/mitsuba2/issues/241#issuecomment-671224678
+RUN mv /root/mitsuba2/ext/enoki/ext/cub /root/mitsuba2/ext/enoki/ext/_cub
+
 RUN /bin/bash -c "source /opt/conda/bin/activate mitsuba2 && \
     mkdir /root/mitsuba2/build && \
     cd /root/mitsuba2/build && \
@@ -62,3 +66,4 @@ RUN echo 'source /root/mitsuba2/setpath.sh' >> ~/.bashrc
 
 # welcome message
 RUN echo 'nvidia-smi && echo "Hi! Nvidia driver should be >440 and cuda >10.2 otherwise you should find another machine. \n Launch jupyter lab with: \n jupyter lab --ip 0.0.0.0  --allow-root --port 8080"' >> ~/.bashrc
+
